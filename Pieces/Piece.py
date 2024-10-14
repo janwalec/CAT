@@ -24,7 +24,7 @@ class Piece:
     def move(self, position):
         raise Exception("NotImplementedException")
 
-    def check_if_move_legal(self, position, board):
+    def check_if_move_legal(self, go_to_y, go_to_x, board): # doesn't check if king is under check/checkmate
         raise Exception("NotImplementedException")
 
     def set_letter(self):

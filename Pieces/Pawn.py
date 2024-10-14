@@ -6,5 +6,5 @@ class Pawn(Piece):
         self.set_letter()
 
     def set_letter(self):
-        self.letter = ' '
+        self.letter = 'P'
 

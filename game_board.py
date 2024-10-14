@@ -28,7 +28,7 @@ class GameBoard:
     @staticmethod
     def load_starting_position():
         array = GameBoard.create_board()
-        with open("data/starting_position.txt", 'r') as file:
+        with open("data/test_position.txt", 'r') as file:
             i, j = 0, 0
 
             for line in file:
@@ -39,7 +39,8 @@ class GameBoard:
                         if piece[1] == 'w':
                             is_white = 1
 
-                        piece_to_add = Piece(is_white)
+                        piece_to_add = Piece(-1)
+
                         match piece[0]:
                             case 'P':
                                 piece_to_add = Pawn(is_white)
@@ -57,6 +58,8 @@ class GameBoard:
                         piece_to_add.set_position(i, j)
 
                         array[i][j].set_piece(piece_to_add)
+                    else:
+                        array[i][j].set_piece(None)
 
                     j += 1
                 i += 1
@@ -82,7 +85,16 @@ class GameBoard:
                 if j.piece is not None:
                     print(j.piece.get_letter(), end = "")
                     print(j.piece.is_white(), end = " ")
+                else:
+                    print("__", end = " ")
             print()
 
 
+    def get_figure_from_coords(self, position_y, position_x):
+        return self.board[position_y][position_x].get_piece()
+    '''
+    def get_figure(self, destination):
+        destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
+        return destination_column, destination_row
+    '''
 

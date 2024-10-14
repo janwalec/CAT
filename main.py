@@ -1,63 +1,64 @@
-from game_manager import GameManager
+from inspect import get_annotations
 
+from game_manager import *
 
-def test_manually(game_manager):
+def test_manually():
     # print("# pawn move to a3")
-    print(game_manager.translate_chess_notation("a3"))
+    print(translate_chess_notation("a3"))
     print()
 
     # print("# b takes c3")
-    print(game_manager.translate_chess_notation("bxc3+"))
+    print(translate_chess_notation("bxc3+"))
     print()
 
     # print("# bishop goes to e3")
-    print(game_manager.translate_chess_notation("Be3"))
+    print(translate_chess_notation("Be3"))
     print()
 
     # print("# bishop from column d goes to e3")
-    print(game_manager.translate_chess_notation("Bde3"))
+    print(translate_chess_notation("Bde3"))
     print()
 
     # print("# bishop from field 7 goes to e3 (2 bishops)")
-    print(game_manager.translate_chess_notation("B7e3"))
+    print(translate_chess_notation("B7e3"))
     print()
 
     # print("# bishop from field d5 goes to e3 (> 2 bishops)")
-    print(game_manager.translate_chess_notation("Bd5e3"))
+    print(translate_chess_notation("Bd5e3"))
     print()
 
     # print("# pawn from collumn c takes d7")
-    print(game_manager.translate_chess_notation("cxd7"))
+    print(translate_chess_notation("cxd7"))
     print()
 
     # print("# pawn from collumn d takes e8")
-    print(game_manager.translate_chess_notation("dxe6"))
+    print(translate_chess_notation("dxe6"))
     print()
 
     # print("# bishop takes e8")
-    print(game_manager.translate_chess_notation("Bxe8"))
+    print(translate_chess_notation("Bxe8"))
     print()
 
     # print("# bishop from column d takes e8")
-    print(game_manager.translate_chess_notation("Bdxe8"))
+    print(translate_chess_notation("Bdxe8"))
     print()
 
     # print("# bishop from column d takes e8")
-    print(game_manager.translate_chess_notation("O-O-O+"))
+    print(translate_chess_notation("O-O-O+"))
     print()
 
-    print(game_manager.translate_chess_notation("Qxf7#"))
+    print(translate_chess_notation("Qxf7#"))
     print()
 
-    print(game_manager.translate_chess_notation("e8=Q+"))
+    print(translate_chess_notation("e8=Q+"))
     print()
 
-    print(game_manager.translate_chess_notation("c8=N#"))
+    print(translate_chess_notation("c8=N#"))
     print()
 
-    # print( game_manager.translate_chess_notation("") ) #
+    # print( translate_chess_notation("") ) #
 
-def test_automatically(game_manager):
+def test_automatically():
     tests = [
         ("a3", "Pawn moves a3"),
         ("h4", "Pawn moves h4"),
@@ -101,25 +102,41 @@ def test_automatically(game_manager):
         ("Qh8+", "Queen moves h8 and gives check"),
     ]
     for notation, expected_output in tests:
-        result = game_manager.translate_chess_notation(notation)
+        figure, column, row, action, destination, promotion, is_check, is_checkmate = translate_chess_notation(notation)
+        result = print_move_description(figure, column, row, action, destination,     promotion, is_check, is_checkmate)
         assert result == expected_output, f"Test failed for {notation}: expected '{expected_output}', got '{result}'"
 
     print("All tests passed!")
 
 game_manager = GameManager()
-#game_manager.game_board.print_coords()
-#game_manager.game_board.print_letters()
 
-#test_manually(game_manager)
-test_automatically(game_manager)
+#test_manually()
+#test_automatically()
+#print()
 
 
+game_manager.game_board.print_coords()
+print()
+game_manager.game_board.print_letters()
+print()
+game_manager.game_board.print_pieces()
+
+notation = "Bd5xa8"
+game_manager.process_move(notation)
+print()
+
+'''
+print(translate_chess_notation(notation))
+figure, column, row, action, destination, promotion, is_check, is_checkmate = translate_chess_notation(notation)
+result = print_move_description(figure, column, row, action, destination,     promotion, is_check, is_checkmate)
+print(result)
+'''
 
 
 '''a = ""
 while a != "*":
     a = input()
-    print(game_manager.translate_chess_notation(a))
+    print(translate_chess_notation(a))
     a = ""
 
 '''
