@@ -34,7 +34,7 @@ class GameBoard:
             for line in file:
                 pieces = line.strip().split()
                 for piece in pieces:
-                    if piece != '#':
+                    if piece != "##":
                         is_white = 0
                         if piece[1] == 'w':
                             is_white = 1

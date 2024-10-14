@@ -25,10 +25,6 @@ class Bishop(Piece):
         sign_y = -1 if go_to_y - self.position[0] < 0 else 1
         sign_x = -1 if go_to_x - self.position[1] < 0 else 1
 
-
-        sign_y = -1 if go_to_y - self.position[0] < 0 else 1
-        sign_x = -1 if go_to_x - self.position[1] < 0 else 1
-
         i, j = self.position[0] + sign_y, self.position[1] + sign_x
 
         while i != go_to_y and j != go_to_x:

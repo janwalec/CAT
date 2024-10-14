@@ -63,12 +63,40 @@ y, x = 0, 7 # start
 field = a[y][x]
 go_to_y, go_to_x = 7, 0 # end
 
-sign_y = -1 if go_to_y - y < 0 else 1
-sign_x = -1 if go_to_x - x < 0 else 1
+sign_y_bishop = -1 if go_to_y - y < 0 else 1
+sign_x_bishop = -1 if go_to_x - x < 0 else 1
 
-i, j = y + sign_y, x + sign_x
+i, j = y + sign_y_bishop, x + sign_x_bishop
 while i != go_to_y and j != go_to_x:
     print(a[i][j])  # Drukujemy aktualną komórkę
-    i += sign_y
-    j += sign_x
+    i += sign_y_bishop
+    j += sign_x_bishop
 
+
+p = False
+q = False
+print( (p and not q) or (not p and q) )
+print(not ((p and not q) or (not p and q)))
+print( (not p or q) and (p or not q) )
+print()
+
+
+for i in a:
+    for j in i:
+        print(j, end =" ")
+    print()
+print()
+
+y, x = 0, 7 # start
+field = a[y][x]
+go_to_y, go_to_x = 0, 0 # end
+sign_y_rook = -1 if (go_to_y - y < 0) else 0 if (go_to_y - y == 0) else 1
+sign_x_rook = -1 if (go_to_x - x < 0) else 0 if (go_to_x - x == 0) else 1
+
+i, j = y + sign_y_rook, x + sign_x_rook
+print(sign_y_rook, sign_x_rook)
+
+while i * abs(sign_y_rook) != go_to_y * abs(sign_y_rook) or j * abs(sign_x_rook) != go_to_x * abs(sign_x_rook):
+    print(a[i][j])  # Drukujemy aktualną komórkę
+    i += sign_y_rook
+    j += sign_x_rook

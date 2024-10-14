@@ -121,9 +121,11 @@ game_manager.game_board.print_letters()
 print()
 game_manager.game_board.print_pieces()
 
-notation = "Bd5xa8"
+notation = "Qd7"
 game_manager.process_move(notation)
 print()
+
+
 
 '''
 print(translate_chess_notation(notation))

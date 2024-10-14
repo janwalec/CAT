@@ -5,15 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6fa97349-18f8-4441-b5c7-47c1b468ee64" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/chess.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/chess.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pieces/Bishop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Bishop.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pieces/Knight.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Knight.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/King.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/King.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pieces/Pawn.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Pawn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pieces/Piece.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Piece.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/Queen.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Queen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/Rook.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Rook.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TEST.py" beforeDir="false" afterPath="$PROJECT_DIR$/TEST.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/test_position.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/test_position.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_board.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_board.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,18 +41,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.Knight.executor&quot;: &quot;Run&quot;,
-    &quot;Python.TEST.executor&quot;: &quot;Run&quot;,
-    &quot;Python.board.executor&quot;: &quot;Run&quot;,
-    &quot;Python.game_board.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/jas/Documents/codes/CAT/main.py&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.Bishop.executor": "Run",
+    "Python.Knight.executor": "Run",
+    "Python.TEST.executor": "Run",
+    "Python.board.executor": "Run",
+    "Python.game_board.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "dev",
+    "last_opened_file_path": "/home/jas/Documents/codes/CAT/main.py"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />

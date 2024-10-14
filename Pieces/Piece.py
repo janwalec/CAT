@@ -2,6 +2,7 @@
 class Piece:
     def __init__(self, is_white):
         self.killed = False
+        self.moved = False
         self.white = is_white
         self.position = (0, 0)
         self.letter = '*'
@@ -32,3 +33,9 @@ class Piece:
 
     def get_letter(self):
         return self.letter
+
+    def get_moved(self):
+        return self.moved
+
+    def set_moved(self):
+        self.moved = True
