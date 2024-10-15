@@ -5,10 +5,9 @@ from Pieces.Rook import Rook
 class Queen(Piece):
     def __init__(self, is_white):
         super().__init__(is_white)
-        self.set_letter()
+        self.set_letter('Q')
+        self.set_value(9)
 
-    def set_letter(self):
-        self.letter = 'Q'
 
     def check_if_move_legal(self, go_to_y, go_to_x, board):
 

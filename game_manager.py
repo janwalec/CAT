@@ -5,7 +5,6 @@ import re
 import Pieces_enum
 
 
-
 def translate_chess_notation(notation):
     is_capture = ('x' in notation)
     is_check = ('+' in notation)
@@ -114,8 +113,12 @@ class GameManager:
                 if piece is not None:
                     if piece.is_white():
                         white_player.add_piece(piece)
+                        if isinstance(piece, King):
+                            white_player.set_king(piece)
                     else:
                         black_player.add_piece(piece)
+                        if isinstance(piece, King):
+                            black_player.set_king(piece)
 
         return white_player, black_player
 
@@ -173,6 +176,13 @@ class GameManager:
                 return None
 
 
+    def tell_if_king_under_attack(self, player):
+        king_pos_y, king_pos_x = player.king.get_position()
+        attacked = player.king.check_if_under_attack(self.game_board, king_pos_y, king_pos_x)
+        if attacked:
+            return True
+
+        return False
 
 
     def process_move(self, move):
@@ -181,17 +191,36 @@ class GameManager:
         piece = self.get_piece_from_notation(self.white_turn, figure, column, row, action, destination, promotion, is_check, is_checkmate)
         print(piece)
         player = self.white_player if self.white_turn else self.black_player
-
-        player_figure_column, player_figure_row = 0, 0
+        enemy = self.white_player if not self.white_turn else self.black_player
         destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
 
-        if action == "Long castle" or "Short castle":
+
+        if action == "Long castle" or action == "Short castle":
             pass
         elif action == "moves":
-            pass
+            if piece is not None:
+                if self.game_board.get_figure_from_coords(destination_row, destination_column) is None:
+                    player_piece = list(filter(lambda x: x == piece, player.player_pieces))[0]
+                    player_piece.set_moved()
+                    p_y, p_x = player_piece.get_position()
+                    self.game_board.set_figure_on_coords(p_y, p_x, None)
+                    self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece)
+                    player_piece.set_position(destination_row, destination_column)
+                    self.white_turn = not self.white_turn
         else:
-            pass
+            if piece is not None:
+                enemy_piece = self.game_board.get_figure_from_coords(destination_row, destination_column)
+                if enemy_piece is not None:
+                    player_piece = list(filter(lambda x: x == piece, player.player_pieces))[0]
+                    player_piece.set_moved()
 
+                    enemy.player_pieces.remove(enemy_piece)
 
+                    p_y, p_x = player_piece.get_position()
+                    self.game_board.set_figure_on_coords(p_y, p_x, None)
+                    self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece)
+                    player_piece.set_position(destination_row, destination_column)
+                    self.white_turn = not self.white_turn
 
-
+        self.tell_if_king_under_attack(player)
+        self.tell_if_king_under_attack(enemy)

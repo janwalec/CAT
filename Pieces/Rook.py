@@ -4,10 +4,9 @@ from Pieces.Piece import Piece
 class Rook(Piece):
     def __init__(self, is_white):
         super().__init__(is_white)
-        self.set_letter()
+        self.set_letter('R')
+        self.set_value(5)
 
-    def set_letter(self):
-        self.letter = 'R'
 
     def check_if_move_legal(self, go_to_y, go_to_x, board):
         if go_to_y == self.position[0] and go_to_x == self.position[1]:

@@ -4,10 +4,9 @@ from Pieces.Piece import Piece
 class Knight(Piece):
     def __init__(self, is_white):
         super().__init__(is_white)
-        self.set_letter()
+        self.set_letter('N')
+        self.set_value(3)
 
-    def set_letter(self):
-        self.letter = 'N'
 
     def check_if_move_legal(self, go_to_y, go_to_x, board):
         occupant = board.get_figure_from_coords(go_to_y, go_to_x)

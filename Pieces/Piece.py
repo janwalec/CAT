@@ -6,6 +6,13 @@ class Piece:
         self.white = is_white
         self.position = (0, 0)
         self.letter = '*'
+        self.value = 0
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
 
     def set_position(self, y, x):
         self.position = (y, x)
@@ -28,8 +35,8 @@ class Piece:
     def check_if_move_legal(self, go_to_y, go_to_x, board): # doesn't check if king is under check/checkmate
         raise Exception("NotImplementedException")
 
-    def set_letter(self):
-        raise Exception("NotImplementedException")
+    def set_letter(self, letter):
+        self.letter = letter
 
     def get_letter(self):
         return self.letter

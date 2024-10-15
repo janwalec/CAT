@@ -46,6 +46,13 @@ lista_owocow = [Jablko(1), Gruszka(2), Arbuz(3), Malina(5), Jablko(5), Gruszka(6
 for w in lista_owocow:
     print(w.nazwa, w.i)
 
+obiekt = lista_owocow[2]
+
+obiekt2 = filter(lambda x: x == obiekt, lista_owocow)
+print(obiekt == obiekt2[0])
+
+'''
+
 a = []
 for i in range(8):
     row = []
@@ -100,3 +107,6 @@ while i * abs(sign_y_rook) != go_to_y * abs(sign_y_rook) or j * abs(sign_x_rook)
     print(a[i][j])  # Drukujemy aktualną komórkę
     i += sign_y_rook
     j += sign_x_rook
+
+
+'''

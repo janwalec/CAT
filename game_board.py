@@ -92,6 +92,9 @@ class GameBoard:
 
     def get_figure_from_coords(self, position_y, position_x):
         return self.board[position_y][position_x].get_piece()
+
+    def set_figure_on_coords(self, position_y, position_x, figure):
+        self.board[position_y][position_x].set_piece(figure)
     '''
     def get_figure(self, destination):
         destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])

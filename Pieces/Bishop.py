@@ -3,10 +3,9 @@ from Pieces.Piece import Piece
 class Bishop(Piece):
     def __init__(self, is_white):
         super().__init__(is_white)
-        self.set_letter()
+        self.set_letter('B')
+        self.set_value(3)
 
-    def set_letter(self):
-        self.letter = 'B'
 
     def check_if_move_legal(self, go_to_y, go_to_x, board):
         if go_to_y == self.position[0] or go_to_x == self.position[1]:

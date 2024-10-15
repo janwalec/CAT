@@ -1,4 +1,4 @@
-from inspect import get_annotations
+from display_manager import DisplayManager
 
 from game_manager import *
 
@@ -110,21 +110,10 @@ def test_automatically():
 
 game_manager = GameManager()
 
-#test_manually()
-#test_automatically()
-#print()
 
 
-game_manager.game_board.print_coords()
-print()
-game_manager.game_board.print_letters()
-print()
-game_manager.game_board.print_pieces()
-
-notation = "Qd7"
-game_manager.process_move(notation)
-print()
-
+disp_man = DisplayManager(game_manager)
+disp_man.run()
 
 
 '''
@@ -141,28 +130,4 @@ while a != "*":
     print(translate_chess_notation(a))
     a = ""
 
-'''
-
-'''
-screen_width, screen_height = 920, 920
-pygame.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((screen_width, screen_height))
-
-running = True
-dt = 0
-
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        else:
-            pass # event_handler.mouse_interrupt(event)
-
-    pygame.display.flip()
-
-    keys = pygame.key.get_pressed()
-
-    dt = clock.tick(60) / 1000
 '''
