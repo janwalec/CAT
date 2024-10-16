@@ -48,8 +48,11 @@ for w in lista_owocow:
 
 obiekt = lista_owocow[2]
 
-obiekt2 = filter(lambda x: x == obiekt, lista_owocow)
+obiekt2 = list(filter(lambda x: x == obiekt, lista_owocow))
 print(obiekt == obiekt2[0])
+
+for i in range(1, 4):
+    print(i)
 
 '''
 

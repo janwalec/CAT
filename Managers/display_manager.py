@@ -1,6 +1,6 @@
 from enum import Enum
-
 import pygame
+
 
 class DisplayFigure(Enum):
     P = '♟'
@@ -9,6 +9,7 @@ class DisplayFigure(Enum):
     R = '♜'
     B = '♝'
     N = '♞'
+
 
 class DisplayManager:
     def __init__(self, game_manager):
@@ -22,8 +23,8 @@ class DisplayManager:
         self.white = (255, 255, 255)
         self.black = (0, 0, 0)
 
-
         self.font = pygame.font.Font("data/Segoe-UI-Symbol.ttf", 32)
+        self.piece_font =pygame.font.Font("data/Segoe-UI-Symbol.ttf", 64)
         self.fields = self.generate_fields()
 
     def run(self):
@@ -114,10 +115,7 @@ class DisplayManager:
 
 
     def display_figures(self):
-
         k = 0
-        piece_font = pygame.font.Font("data/Segoe-UI-Symbol.ttf", 64)
-
 
         for i in range(8):
             for j in range(8):
@@ -128,27 +126,9 @@ class DisplayManager:
                     icon = DisplayFigure[piece_sign].value
                     rect = self.fields[i][j]
 
-                    if piece_sign == 'K' and piece.is_white():
-                        if self.game_manager.tell_if_king_under_attack(self.game_manager.white_player):
-                            outline_surface = piece_font.render(icon, True, (255,0 ,0))
-                        else:
-                            outline_surface = piece_font.render(icon, True, (0, 255, 0))
-                    elif piece_sign == 'K' and not piece.is_white():
-                        if self.game_manager.tell_if_king_under_attack(self.game_manager.black_player):
-                            outline_surface = piece_font.render(icon, True, (255,0 ,0))
-                        else:
-                            outline_surface = piece_font.render(icon, True, (0, 255, 0))
-                    else:
-                        outline_surface = piece_font.render(icon, True, (0,255,0))
-                    outline_rect = outline_surface.get_rect()
-                    outline_rect.center = rect.center
+                    self.display_figure_outline(icon, piece_sign, piece.is_white(), rect)
 
-                    for x_offset in [-2, 0, 2]:
-                        for y_offset in [-2, 0, 2]:
-                            if x_offset != 0 or y_offset != 0:
-                                self.screen.blit(outline_surface, (outline_rect.x + x_offset, outline_rect.y + y_offset))
-
-                    text_surface = piece_font.render(icon, True, color)
+                    text_surface = self.piece_font.render(icon, True, color)
                     text_rect = text_surface.get_rect()
                     text_rect.center = rect.center
 
@@ -157,8 +137,17 @@ class DisplayManager:
             k += 1
 
 
+    def display_figure_outline(self, icon, piece_sign, is_white, rect):
+        outline_surface = self.piece_font.render(icon, True, (0, 255, 0))
 
+        for x_offset in [-2, 0, 2]:
+            for y_offset in [-2, 0, 2]:
+                if x_offset != 0 or y_offset != 0:
+                    if self.game_manager.white_player.king.get_under_attack() and piece_sign == 'K' and is_white:
+                        outline_surface = self.piece_font.render(icon, True, (255, 0, 0))
+                    if self.game_manager.black_player.king.get_under_attack() and piece_sign == 'K' and not is_white:
+                        outline_surface = self.piece_font.render(icon, True, (255, 0, 0))
 
-
-
-
+                    outline_rect = outline_surface.get_rect()
+                    outline_rect.center = rect.center
+                    self.screen.blit(outline_surface, (outline_rect.x + x_offset, outline_rect.y + y_offset))

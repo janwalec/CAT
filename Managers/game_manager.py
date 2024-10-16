@@ -1,101 +1,8 @@
-from game_board import GameBoard
+from Board.game_board import GameBoard
+from Managers.notation_translator import translate_chess_notation
 from Player import Player
-from Pieces_enum import *
-import re
-import Pieces_enum
+from Pieces.Pieces_enum import *
 
-
-def translate_chess_notation(notation):
-    is_capture = ('x' in notation)
-    is_check = ('+' in notation)
-    is_checkmate = ('#' in notation)
-    is_promotion = ('=' in notation)
-
-    column, row, action = None, None, None  # action is either castle, moves or takes
-    # figure - symbol of a figure; destination - field it goes to; promotion - symbol of a figure pawn promotoes to
-    figure, destination, promotion = "", "", ""
-
-    notation = notation.replace('+', '').replace('#', '')
-
-    if notation == "O-O":
-        action = "Short castle"
-
-    elif notation == "O-O-O":
-        action = "Long castle"
-    else:
-
-        if is_promotion:
-            promotion = notation.split('=')[1]
-            notation = notation[:-2]
-
-        if is_capture:
-            figure, destination = notation.split('x')
-            action = "takes"
-
-        else:
-            destination = notation[-2:]
-            figure = notation[:-2]
-            action = "moves"
-
-        # it was a pawn
-        #TODO en passant
-        if len(figure) == 0: # just a pawn move
-            figure = "P"
-        elif len(figure) == 1 and figure.islower(): # pawn is a number of column (char)
-            column = figure
-            figure = "P"
-
-        # it was a figure
-        elif len(figure) == 1: # figure is just a single capital letter (char)
-            pass
-
-        elif len(figure) == 3: # figure is capital letter, a number of column and a number of row (char)*(char)*(int)
-            column = figure[1]
-            row = figure[2]
-            figure = figure[0]
-
-        else: # len(figure) == 2
-            if re.search(r'\d', figure): # figure is a single capital letter and a number of row (char)*(int)
-                row = figure[1]
-                figure = figure[0]
-            else:   # figure is a single capital letter and a number of column (char)*(char)
-                column = figure[1]
-                figure = figure[0]
-
-    return figure, column, row, action, destination, promotion, is_check, is_checkmate
-
-
-def print_move_description(figure, column, row, action, destination, promotion, is_check, is_checkmate):
-    description = ""
-    pieces = {"K": "King", "Q": "Queen", "R": "Rook", "B": "Bishop", "N": 'Knight'}
-    if action != "Short castle" and action != "Long castle":
-        description += pieces.get(figure, "Pawn")
-
-        if column is not None and row is not None:
-            description += " from field "
-            description += column
-            description += row
-
-        if column is not None and row is None:
-            description += " from field "
-            description += column
-        elif row is not None and column is None:
-            description += " from field "
-            description += row
-
-        description += " " + action + " " + destination
-    else:
-        description += action
-
-    if promotion != "":
-        description += " and promotes to " + pieces.get(promotion, "Pawn")
-
-    if is_check:
-        description += " and gives check"
-    elif is_checkmate:
-        description += " and gives checkmate"
-
-    return description
 
 class GameManager:
 
@@ -103,6 +10,7 @@ class GameManager:
         self.game_board = GameBoard()
         self.white_player, self.black_player = self.create_players()
         self.white_turn = True
+
 
     def create_players(self):
         white_player = Player(True)
@@ -180,26 +88,77 @@ class GameManager:
         king_pos_y, king_pos_x = player.king.get_position()
         attacked = player.king.check_if_under_attack(self.game_board, king_pos_y, king_pos_x)
         if attacked:
+            print("ATTACKED")
+            player.king.set_under_attack(True)
             return True
 
+        player.king.set_under_attack(False)
         return False
 
 
     def process_move(self, move):
         figure, column, row, action, destination, promotion, is_check, is_checkmate = translate_chess_notation(move)
 
-        piece = self.get_piece_from_notation(self.white_turn, figure, column, row, action, destination, promotion, is_check, is_checkmate)
-        print(piece)
+        destination_column, destination_row = 0, 0
+        piece = None
+
+        if action != "Long castle" and action != "Short castle":
+            piece = self.get_piece_from_notation(self.white_turn, figure, column, row, action, destination, promotion, is_check, is_checkmate)
+            print(piece)
+            destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
+
         player = self.white_player if self.white_turn else self.black_player
         enemy = self.white_player if not self.white_turn else self.black_player
-        destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
 
 
-        if action == "Long castle" or action == "Short castle":
-            pass
+        king_y, king_x = player.king.get_position()
+        if action == "Long castle":
+            if player.king.can_castle(action, self.game_board):
+                print("COULD LONG CASTLE")
+                piece = self.game_board.get_figure_from_coords(king_y, king_x - 4) # rook
+
+                piece.set_moved()
+                player.king.set_moved()
+
+                piece.set_position(king_y, 2)
+                player.king.set_position(king_y, 1)
+                self.game_board.set_figure_on_coords(king_y, 2, piece)
+                self.game_board.set_figure_on_coords(king_y, 1, player.king)
+                self.game_board.set_figure_on_coords(king_y, 0, None)
+                self.game_board.set_figure_on_coords(king_y, 4, None)
+
+                self.white_turn = not self.white_turn
+            else:
+                print("COULD NOT LONG CASTLE")
+
+        elif action == "Short castle":
+            if player.king.can_castle(action, self.game_board):
+                print("COULD SHORT CASTLE")
+                piece = self.game_board.get_figure_from_coords(king_y, king_x + 3)  # rook
+
+                piece.set_moved()
+                player.king.set_moved()
+
+                piece.set_position(king_y, 5)
+                player.king.set_position(king_y, 6)
+                self.game_board.set_figure_on_coords(king_y, 5, piece)
+                self.game_board.set_figure_on_coords(king_y, 6, player.king)
+                self.game_board.set_figure_on_coords(king_y, 7, None)
+                self.game_board.set_figure_on_coords(king_y, 4, None)
+
+                self.white_turn = not self.white_turn
+            else:
+                print("COULD NOT SHORT CASTLE")
+
+
         elif action == "moves":
             if piece is not None:
                 if self.game_board.get_figure_from_coords(destination_row, destination_column) is None:
+
+                    if player.king.get_under_attack():
+                        if not self.check_if_move_removes_check(player, piece, destination_row, destination_column):
+                            return
+
                     player_piece = list(filter(lambda x: x == piece, player.player_pieces))[0]
                     player_piece.set_moved()
                     p_y, p_x = player_piece.get_position()
@@ -211,6 +170,11 @@ class GameManager:
             if piece is not None:
                 enemy_piece = self.game_board.get_figure_from_coords(destination_row, destination_column)
                 if enemy_piece is not None:
+
+                    if player.king.get_under_attack():
+                        if not self.check_if_move_removes_check(player, piece, destination_row, destination_column):
+                            return
+
                     player_piece = list(filter(lambda x: x == piece, player.player_pieces))[0]
                     player_piece.set_moved()
 
@@ -224,3 +188,26 @@ class GameManager:
 
         self.tell_if_king_under_attack(player)
         self.tell_if_king_under_attack(enemy)
+
+    def check_if_move_removes_check(self, player, piece_moved, destination_row, destination_column):
+        player_piece_y, player_piece_x = piece_moved.get_position()
+        occupant = self.game_board.get_figure_from_coords(destination_row, destination_column)
+        king_y, king_x = player.king.get_position()
+
+        removed = False
+
+        self.game_board.set_figure_on_coords(destination_row, destination_column, piece_moved)
+        self.game_board.set_figure_on_coords(player_piece_y, player_piece_x, None)
+
+        if isinstance(piece_moved, King):
+            if not player.king.check_if_under_attack(self.game_board, destination_row, destination_column):
+                removed = True
+        else:
+            if not player.king.check_if_under_attack(self.game_board, king_y, king_x):
+                removed = True
+
+
+        self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
+        self.game_board.set_figure_on_coords(player_piece_y, player_piece_x, piece_moved)
+
+        return removed

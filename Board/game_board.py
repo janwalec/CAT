@@ -9,7 +9,7 @@ from Pieces.Field import Field
 
 class GameBoard:
     def __init__(self):
-        self.board = self.load_starting_position()
+        self.board = self.load_starting_position("data/test_position.txt")
 
     @staticmethod
     def create_board():
@@ -26,9 +26,9 @@ class GameBoard:
         return board
 
     @staticmethod
-    def load_starting_position():
+    def load_starting_position(path):
         array = GameBoard.create_board()
-        with open("data/test_position.txt", 'r') as file:
+        with open(path, 'r') as file:
             i, j = 0, 0
 
             for line in file:
@@ -67,37 +67,9 @@ class GameBoard:
         return array
 
 
-    def print_coords(self):
-        for i in self.board:
-            for j in i:
-                print(j.coords, end=" ")
-            print()
-
-    def print_letters(self):
-        for i in self.board:
-            for j in i:
-                print(j.notation, end = " ")
-            print()
-
-    def print_pieces(self):
-        for i in self.board:
-            for j in i:
-                if j.piece is not None:
-                    print(j.piece.get_letter(), end = "")
-                    print(j.piece.is_white(), end = " ")
-                else:
-                    print("__", end = " ")
-            print()
-
-
     def get_figure_from_coords(self, position_y, position_x):
         return self.board[position_y][position_x].get_piece()
 
     def set_figure_on_coords(self, position_y, position_x, figure):
         self.board[position_y][position_x].set_piece(figure)
-    '''
-    def get_figure(self, destination):
-        destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
-        return destination_column, destination_row
-    '''
 
