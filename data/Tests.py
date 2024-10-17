@@ -148,7 +148,7 @@ def test_set_of_games(path):
 
         if it % 1000 == 0:
             elapsed_time = time.time() - time_start
-            print("done ", it, "/", len(arr), " (", round(it/len(arr), 3) * 100, "%)", "took ", round(elapsed_time, 2), "seconds")
+            print("done ", it, "/", len(arr), " (", round(100 * it/len(arr), 3), "%)", "took ", round(elapsed_time, 2), "seconds")
             time_start = time.time()
             print("total time:", round(time.time() - total_time, 2), "\n")
 
@@ -156,9 +156,6 @@ def test_set_of_games(path):
 
 
         gm = None
-
-
-
 
 
 test_set_of_games("data/games/arr_lichess_db_standard_rated_2013-01.csv")

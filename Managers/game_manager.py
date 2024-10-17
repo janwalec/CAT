@@ -21,67 +21,75 @@ class GameManager:
                 if piece is not None:
                     if piece.is_white():
                         white_player.add_piece(piece)
-                        if isinstance(piece, King):
+                        if white_player.king is None and isinstance(piece, King):
                             white_player.set_king(piece)
                     else:
                         black_player.add_piece(piece)
-                        if isinstance(piece, King):
+                        if black_player.king is None and isinstance(piece, King):
                             black_player.set_king(piece)
 
         return white_player, black_player
 
 
-    def get_piece_from_notation(self, figure, column, row, destination, player, enemy):
-        destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
+    def validate_position_before_and_after_move(self, piece, player, destination_row, destination_column):
+        # piece move might be illegal
+        if piece.check_if_move_legal(destination_row, destination_column, self.game_board):
+            if player.king.get_under_attack():
+                # if king is under attack, check if move changes it
+                if self.check_if_move_removes_check(player, piece, destination_row, destination_column):
+                    return piece
+            else:
+                # king was not under attack, but it could be after a move
+                if self.search_for_check_after_move(player, piece, destination_row, destination_column):
+                    return piece
+        return None
 
+
+    def get_piece_from_notation(self, figure, column, row, destination):
         player = self.white_player if self.white_turn else self.black_player
-
         # column - letter in notation "(char)x"
         # row - number in notation "(char)y"
+        destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
+
         if column is not None and row is not None:
+            # given exact position
             x, y = ord(column) % 97, 8 - int(row)
             piece = self.game_board.get_figure_from_coords(y, x)
-            # print("COLUMN AND ROW GIVEN", column + row)
 
-            if piece.check_if_move_legal(destination_row, destination_column, self.game_board):
-                return piece
+            validated = self.validate_position_before_and_after_move(piece, player, destination_row, destination_column)
+            if validated is not None: return validated
+
             return None
         else:
-            list_of_possible_pieces = get_class_from_list(figure, player.player_pieces)
+            #TODO wrong notation for pawn (7e3)  errer
+            list_of_possible_pieces = get_class_from_list(figure, player.player_pieces) # get all pieces that may fit the column/row
+            if None in list_of_possible_pieces:
+                return None
+
             if column is None and row is None:
-                # print("NOTHING GIVEN")
-                for piece in list_of_possible_pieces:
-                    if piece.check_if_move_legal(destination_row, destination_column, self.game_board):
-                        # print("piece =", piece.get_letter(), piece.get_position())
-                        if player.king.get_under_attack():
-                            if self.check_if_move_removes_check(player, piece, destination_row, destination_column):
-                                return piece
-                        else:
-                            p_y, p_x = piece.get_position()
-                            if self.search_for_check_after_move(player, piece, p_y, p_x, destination_row, destination_column):
-                                return piece
+                for piece in list_of_possible_pieces: # iter through pieces
+                    validated = self.validate_position_before_and_after_move(piece, player, destination_row, destination_column)
+                    if validated is not None: return validated
 
                 return None
 
             elif column is not None:
-                # print("ONLY COLUMN GIVEN", column)
                 x = ord(column) % 97
                 for piece in list_of_possible_pieces:
                     if piece.get_position()[1] == x:
-                        if piece.check_if_move_legal(destination_row, destination_column, self.game_board):
-                            # print("piece =", piece.get_letter(), piece.get_position())
-                            return piece
+                        validated = self.validate_position_before_and_after_move(piece, player, destination_row, destination_column)
+                        if validated is not None: return validated
+
                 return None
 
-            if row is not None:
-               #  print("ONLY ROW GIVEN", row)
+            elif row is not None:
                 y = 8 - int(row)
                 for piece in list_of_possible_pieces:
                     if piece.get_position()[0] == y:
-                        if piece.check_if_move_legal(destination_row, destination_column, self.game_board):
-                            # print("piece =", piece.get_letter(), piece.get_position())
-                            return piece
+                        validated = self.validate_position_before_and_after_move(piece, player, destination_row, destination_column)
+                        if validated is not None: return validated
                 return None
+        return None # for safety
 
 
     def tell_if_king_under_attack(self, player):
@@ -95,123 +103,115 @@ class GameManager:
         player.king.set_under_attack(False)
         return False
 
+
     def complete_move(self, player, enemy, piece_to_move, destination_row, destination_column, occupant):
+        # get piece from player's list and set 'moved' to true
         player_piece = list(filter(lambda x: x == piece_to_move, player.player_pieces))[0]
         player_piece.set_moved()
+
+        # set figure on the field
         p_y, p_x = player_piece.get_position()
-        self.game_board.set_figure_on_coords(p_y, p_x, None)
-        self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece)
+        self.game_board.set_figure_on_coords(p_y, p_x, None) # old field
+        self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece) # new field
         player_piece.set_position(destination_row, destination_column)
         self.white_turn = not self.white_turn
 
+        # if something was captured, remove it from the list
         if occupant is not None:
             enemy.player_pieces.remove(occupant)
 
-    def search_for_check_after_move(self, player, piece_to_move, p_y, p_x, destination_row, destination_column):
-        player_piece = list(filter(lambda x: x == piece_to_move, player.player_pieces))[0]
 
+    def search_for_check_after_move(self, player, piece_to_move, destination_row, destination_column):
+        # after a move, king could be checked
+
+        # get piece from player's list and DO NOT set 'moved' to true
+        player_piece = list(filter(lambda x: x == piece_to_move, player.player_pieces))[0]
+        # get current occupant of the destination field
         occupant = self.game_board.get_figure_from_coords(destination_row, destination_column)
+
+        # save the original position for a piece
+        p_y, p_x = piece_to_move.get_position()
+
+        # simulate the situation after this move
         self.game_board.set_figure_on_coords(p_y, p_x, None)
         self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece)
-        player_piece.set_position(destination_row, destination_column)
 
+        # on simulated position, check if king is under attack
         king_y, king_x = player.king.get_position()
         legal = not player.king.check_if_under_attack(self.game_board, king_y, king_x)
 
+        # go back to original position
         self.game_board.set_figure_on_coords(p_y, p_x, player_piece)
         self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
 
-        player_piece.set_position(p_y, p_x)
         return legal
 
     def complete_promotion(self, player, piece, promotion):
+        if piece is None:
+            # could be None if promotion ends up with player's king being checked
+            return
+
+        # save position and remove piece (pawn)
         p_y, p_x = piece.get_position()
+        player.player_pieces.remove(piece)
+
+        # process new piece, given from promotion
         new_piece = PE[promotion].value(piece.is_white())
         new_piece.set_moved()
         new_piece.set_position(p_y, p_x)
-        player.player_pieces.remove(piece)
+
+        # save new piece
         player.player_pieces.append(new_piece)
         self.game_board.set_figure_on_coords(p_y, p_x, new_piece)
-        #print(new_piece)
+
+
+    def process_castle(self, castle_type, player):
+        # magic numbers, just fixed values for both players
+        # y is taken from the king
+        pieces_position = [-4, 3, 2, 0] if castle_type == "Long castle" else [3, 5, 6, 7]
+        king_y, king_x = player.king.get_position()
+        rook = None
+
+        # king can tell if he/rook has moved or if there is something in between them or if he got checked
+        if player.king.can_castle(castle_type, self.game_board):
+            rook = self.game_board.get_figure_from_coords(king_y, king_x + pieces_position[0])
+
+            rook.set_moved()
+            player.king.set_moved()
+
+            rook.set_position(king_y, pieces_position[1])
+            player.king.set_position(king_y, pieces_position[2])
+            self.game_board.set_figure_on_coords(king_y, pieces_position[1], rook)
+            self.game_board.set_figure_on_coords(king_y, pieces_position[2], player.king)
+            self.game_board.set_figure_on_coords(king_y, pieces_position[3], None)
+            self.game_board.set_figure_on_coords(king_y, 4, None)
+
+            self.white_turn = not self.white_turn
+
+        return rook
+
 
     def process_move(self, move):
+        # init values
         figure, column, row, action, destination, promotion, is_check, is_checkmate = translate_chess_notation(move)
-
         destination_column, destination_row = -1, -1
         p_y, p_x = 0, 0
-        piece = None
 
         player = self.white_player if self.white_turn else self.black_player
         enemy = self.white_player if not self.white_turn else self.black_player
 
-        if action != "Long castle" and action != "Short castle":
-            piece = self.get_piece_from_notation(figure, column, row, destination, player, enemy)
+        if action == "Long castle" or action == "Short castle":
+            piece = self.process_castle(action, player)
+
+        else: # moves or takes
+            piece = self.get_piece_from_notation(figure, column, row, destination)
             destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
-
-
-        king_y, king_x = player.king.get_position()
-        if action == "Long castle":
-            if player.king.can_castle(action, self.game_board):
-                #print("COULD LONG CASTLE")
-                piece = self.game_board.get_figure_from_coords(king_y, king_x - 4) # rook
-
-                piece.set_moved()
-                player.king.set_moved()
-
-                piece.set_position(king_y, 3)
-                player.king.set_position(king_y, 2)
-                self.game_board.set_figure_on_coords(king_y, 3, piece)
-                self.game_board.set_figure_on_coords(king_y, 2, player.king)
-                self.game_board.set_figure_on_coords(king_y, 0, None)
-                self.game_board.set_figure_on_coords(king_y, 4, None)
-
-                self.white_turn = not self.white_turn
-            else:
-                print("COULD NOT LONG CASTLE")
-
-        elif action == "Short castle":
-            if player.king.can_castle(action, self.game_board):
-                #print("COULD SHORT CASTLE")
-                piece = self.game_board.get_figure_from_coords(king_y, king_x + 3)  # rook
-
-                piece.set_moved()
-                player.king.set_moved()
-                p_y, p_x = piece.get_position()
-                piece.set_position(king_y, 5)
-                player.king.set_position(king_y, 6)
-                self.game_board.set_figure_on_coords(king_y, 5, piece)
-                self.game_board.set_figure_on_coords(king_y, 6, player.king)
-                self.game_board.set_figure_on_coords(king_y, 7, None)
-                self.game_board.set_figure_on_coords(king_y, 4, None)
-
-                self.white_turn = not self.white_turn
-            else:
-                print("COULD NOT SHORT CASTLE")
-
-
-        elif action == "moves":
-            if piece is not None:
-                if self.game_board.get_figure_from_coords(destination_row, destination_column) is None:
-
-                    if player.king.get_under_attack():
-                        if not self.check_if_move_removes_check(player, piece, destination_row, destination_column):
-                            return
-                    p_y, p_x = piece.get_position()
-                    if self.search_for_check_after_move(player, piece, p_y, p_x, destination_row, destination_column):
-                        self.complete_move(player, enemy, piece, destination_row, destination_column, None)
-
-        else:
             if piece is not None:
                 enemy_figure = self.game_board.get_figure_from_coords(destination_row, destination_column)
-                if enemy_figure is not None:
+                p_y, p_x = piece.get_position()
+                self.complete_move(player, enemy, piece, destination_row, destination_column, enemy_figure)
 
-                    if player.king.get_under_attack():
-                        if not self.check_if_move_removes_check(player, piece, destination_row, destination_column):
-                            return
 
-                    p_y, p_x = piece.get_position()
-                    if self.search_for_check_after_move(player, piece, p_y, p_x, destination_row, destination_column):
-                        self.complete_move(player, enemy, piece, destination_row, destination_column, enemy_figure)
             else:
                 if figure == 'P':
                     en_passant_figure = check_if_en_passant(figure, column, destination_column, destination_row, enemy, player)
@@ -233,6 +233,7 @@ class GameManager:
             #player.print_last_move()
 
         return piece
+
 
     def check_if_move_removes_check(self, player, piece_moved, destination_row, destination_column):
         player_piece_y, player_piece_x = piece_moved.get_position()
