@@ -1,5 +1,10 @@
+import csv
+import os
+from pathlib import Path
+import time
 from Managers.game_manager import *
 from Managers.notation_translator import print_move_description
+from Managers.game_manager import GameManager
 
 
 def test_manually():
@@ -107,3 +112,59 @@ def test_automatically():
         assert result == expected_output, f"Test failed for {notation}: expected '{expected_output}', got '{result}'"
 
     print("All tests passed!")
+
+
+def test_set_of_games(path):
+    check_if_exists = Path(path)
+    arr = []
+
+    if check_if_exists.is_file():
+        print("file exists")
+        with open(path, 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                result = row[0]
+                moves = row[1].split()
+                arr.append([result, moves])
+
+    else:
+        print("file doesnt exist")
+        return
+
+
+    it = 0
+    time_start = time.time()
+    total_time = time.time()
+    for game in arr:
+
+        gm = GameManager("data/starting_position.txt")
+        for i in game[1]:
+            error_message = gm.process_move(i)
+            if not '#' in i and error_message is None:
+                print("ERROR")
+                print("done ", it, "/", len(arr))
+                print(game[1])
+                assert error_message is not None, f"Test failed: piece should not be None for game {i}"
+
+        if it % 1000 == 0:
+            elapsed_time = time.time() - time_start
+            print("done ", it, "/", len(arr), " (", round(it/len(arr), 3) * 100, "%)", "took ", round(elapsed_time, 2), "seconds")
+            time_start = time.time()
+            print("total time:", round(time.time() - total_time, 2), "\n")
+
+        it += 1
+
+
+        gm = None
+
+
+
+
+
+test_set_of_games("data/games/arr_lichess_db_standard_rated_2013-01.csv")
+
+
+
+
+
+

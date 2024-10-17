@@ -6,13 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="6fa97349-18f8-4441-b5c7-47c1b468ee64" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Board/game_board.py" beforeDir="false" afterPath="$PROJECT_DIR$/Board/game_board.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Managers/display_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Managers/display_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Managers/game_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Managers/game_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Managers/notation_translator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Managers/notation_translator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/Bishop.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Bishop.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pieces/King.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/King.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pieces_enum.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Pieces_enum.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEST.py" beforeDir="false" afterPath="$PROJECT_DIR$/TEST.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/Knight.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Knight.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/Pawn.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Pawn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pieces/Rook.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pieces/Rook.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Player.py" beforeDir="false" afterPath="$PROJECT_DIR$/Player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/Tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/Tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/test_position.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/test_position.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Managers/display_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_board.py" beforeDir="false" afterPath="$PROJECT_DIR$/Board/game_board.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Managers/game_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -44,27 +49,30 @@
     "Python.Bishop.executor": "Run",
     "Python.King.executor": "Debug",
     "Python.Knight.executor": "Run",
+    "Python.Parse_data.executor": "Run",
     "Python.TEST.executor": "Run",
+    "Python.Tests.executor": "Run",
     "Python.board.executor": "Run",
     "Python.display_manager.executor": "Run",
-    "Python.game_board.executor": "Run",
+    "Python.game_board.executor": "Debug",
     "Python.game_manager.executor": "Run",
     "Python.main.executor": "Run",
+    "Python.tests.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "dev",
-    "last_opened_file_path": "/home/jas/Documents/codes/CAT/main.py"
+    "last_opened_file_path": "/home/jas/Documents/codes/CAT/data/Tests.py"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data/games" />
       <recent name="$PROJECT_DIR$/Managers" />
       <recent name="$PROJECT_DIR$/Pieces" />
       <recent name="$PROJECT_DIR$/Board" />
       <recent name="$PROJECT_DIR$/data" />
-      <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.tests">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="chess" />
       <option name="ENV_FILES" value="" />
@@ -88,6 +96,33 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="tests" type="PythonConfigurationType" factoryName="Python">
+      <module name="chess" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.12 (python_interpreter)" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/Tests.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.tests" />
+    </list>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

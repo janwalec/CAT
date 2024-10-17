@@ -18,7 +18,7 @@ class Bishop(Piece):
 
         occupant = board.get_figure_from_coords(go_to_y, go_to_x)
         if occupant is not None and occupant.is_white() == self.is_white():
-            print("SAME COLOR")
+            #print("SAME COLOR")
             return False
 
         sign_y = -1 if go_to_y - self.position[0] < 0 else 1
@@ -28,7 +28,7 @@ class Bishop(Piece):
 
         while i != go_to_y and j != go_to_x:
             if board.get_figure_from_coords(i, j) is not None:
-                print("crossed another piece")
+                #print("crossed another piece")
                 return False
             i += sign_y
             j += sign_x

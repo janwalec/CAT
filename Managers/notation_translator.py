@@ -1,5 +1,8 @@
 import re
 
+from Pieces.Pawn import Pawn
+from Pieces.Pieces_enum import *
+
 
 def translate_chess_notation(notation):
     is_capture = ('x' in notation)
@@ -92,3 +95,34 @@ def print_move_description(figure, column, row, action, destination, promotion, 
         description += " and gives checkmate"
 
     return description
+
+
+def check_if_en_passant(figure, column, destination_column, destination_row , enemy, player):
+    enemy_piece, enemy_last_y, enemy_last_x, enemy_went_to_y, enemy_went_to_x = enemy.get_last_move()
+
+    pawn_to_do_en_passant = None
+
+    if column is None or figure != 'P':
+        return None
+    if not isinstance(enemy_piece, Pawn):
+        return None
+    if abs(enemy_last_y - enemy_went_to_y) < 2:
+        return None
+
+    if destination_column != enemy_last_x:
+        return None
+
+    if not enemy.get_white() and destination_row + 1 != enemy_went_to_y:
+        return None
+    elif enemy.get_white() and destination_row - 1 != enemy_went_to_y:
+        return None
+
+    column = ord(column) % 97
+    list_of_possible_pieces = get_class_from_list(figure, player.player_pieces)
+    for piece in list_of_possible_pieces:
+        p_y, p_x = piece.get_position()
+        if p_x == column and p_y == enemy_went_to_y:
+            pawn_to_do_en_passant = piece
+            break
+
+    return pawn_to_do_en_passant

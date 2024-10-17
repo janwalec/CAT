@@ -16,20 +16,20 @@ class King(Piece):
 
     def check_if_move_legal(self, go_to_y, go_to_x, board):
         if self.position[0] == go_to_y and self.position[1] == go_to_x:
-            print("SAME FIELD")
+            #print("SAME FIELD")
             return False
 
         if sqrt( (self.position[0] - go_to_y)**2 + (self.position[1] - go_to_x)**2 ) > sqrt(2):
-            print("WRONG DIRECTION")
+            #print("WRONG DIRECTION")
             return False
 
         occupant = board.get_figure_from_coords(go_to_y, go_to_x)
         if occupant is not None and occupant.is_white() == self.is_white():
-            print("SAME COLOR")
+            #print("SAME COLOR")
             return False
 
         if self.check_if_under_attack(board, go_to_y, go_to_x):
-            print("UNDER ATTACK")
+            #print("UNDER ATTACK")
             return False
 
         return True
@@ -43,7 +43,7 @@ class King(Piece):
                 if occupant is not None and occupant.is_white() != self.is_white() and occupant.get_letter() == 'P':
                     return True
         if is_in_range(go_to_x + 1):
-            if is_in_range(go_to_x + pawn_direction):
+            if is_in_range(go_to_y + pawn_direction):
                 occupant = board.get_figure_from_coords(go_to_y + pawn_direction, go_to_x + 1)
                 if occupant is not None and occupant.is_white() != self.is_white() and occupant.get_letter() == 'P':
                     return True
@@ -133,10 +133,10 @@ class King(Piece):
                     return False
 
         else:
-            if (board.get_figure_from_coords(king_y, king_x -4) is not None
+            if (board.get_figure_from_coords(king_y, king_x - 4) is not None
                     and board.get_figure_from_coords(king_y, king_x -4).get_moved()):
                 return False
-            for i in range(1, 4):
+            for i in range(1, 3):
                 if board.get_figure_from_coords(king_y, king_x - i) is not None:
                     return False
                 if self.check_if_under_attack(board, king_y, king_x - i):

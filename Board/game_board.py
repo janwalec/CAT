@@ -8,8 +8,8 @@ from Pieces.King import King
 from Pieces.Field import Field
 
 class GameBoard:
-    def __init__(self):
-        self.board = self.load_starting_position("data/test_position.txt")
+    def __init__(self, path):
+        self.board = self.load_starting_position(path)
 
     @staticmethod
     def create_board():

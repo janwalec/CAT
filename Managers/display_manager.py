@@ -27,28 +27,37 @@ class DisplayManager:
         self.piece_font =pygame.font.Font("data/Segoe-UI-Symbol.ttf", 64)
         self.fields = self.generate_fields()
 
-    def run(self):
+    def run(self, game):
 
         running = True
         dt = 0
 
         input_text = ""
-
-
+        i = 0
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                if game == None:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:  # Naciśnięcie Enter
+                            print(f"Entered: {input_text}")
+                            self.game_manager.process_move(input_text)
+                            input_text = ""  # Resetuj tekst po wprowadzeniu
+                        elif event.key == pygame.K_BACKSPACE:  # Naciśnięcie Backspace
+                            input_text = input_text[:-1]  # Usuń ostatni znak
+                        else:
+                            input_text += event.unicode  # Dodaj wprowadzony znak
+                else:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            self.game_manager.process_move(game[i])
+                            input_text += str(game[i]) + " "  # Dodaj wprowadzony znak
+                            i += 1
+                        else:
+                            input_text = ""  # Resetuj tekst po wprowadzeniu
 
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:  # Naciśnięcie Enter
-                        print(f"Entered: {input_text}")
-                        self.game_manager.process_move(input_text)
-                        input_text = ""  # Resetuj tekst po wprowadzeniu
-                    elif event.key == pygame.K_BACKSPACE:  # Naciśnięcie Backspace
-                        input_text = input_text[:-1]  # Usuń ostatni znak
-                    else:
-                        input_text += event.unicode  # Dodaj wprowadzony znak
+
 
 
             self.display_all(input_text)
