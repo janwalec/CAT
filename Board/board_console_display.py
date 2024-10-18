@@ -1,3 +1,5 @@
+# file just for testing
+
 def print_coords(board):
     for i in board:
         for j in i:

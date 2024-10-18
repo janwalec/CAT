@@ -1,6 +1,6 @@
 from Board.game_board import GameBoard
 from Managers.notation_translator import translate_chess_notation, check_if_en_passant
-from Player import Player
+from Board.Player import Player
 from Pieces.Pieces_enum import *
 
 
@@ -29,6 +29,55 @@ class GameManager:
                             black_player.set_king(piece)
 
         return white_player, black_player
+
+
+    def check_if_move_removes_check(self, player, piece_moved, destination_row, destination_column):
+        player_piece_y, player_piece_x = piece_moved.get_position()
+        occupant = self.game_board.get_figure_from_coords(destination_row, destination_column)
+        king_y, king_x = player.king.get_position()
+
+        removed = False
+
+        self.game_board.set_figure_on_coords(destination_row, destination_column, piece_moved)
+        self.game_board.set_figure_on_coords(player_piece_y, player_piece_x, None)
+
+        if isinstance(piece_moved, King):
+            if not player.king.check_if_under_attack(self.game_board, destination_row, destination_column):
+                removed = True
+        else:
+            if not player.king.check_if_under_attack(self.game_board, king_y, king_x):
+                removed = True
+
+        self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
+        self.game_board.set_figure_on_coords(player_piece_y, player_piece_x, piece_moved)
+
+        return removed
+
+
+    def search_for_check_after_move(self, player, piece_to_move, destination_row, destination_column):
+        # after a move, king could be checked
+
+        # get piece from player's list and DO NOT set 'moved' to true
+        player_piece = list(filter(lambda x: x == piece_to_move, player.player_pieces))[0]
+        # get current occupant of the destination field
+        occupant = self.game_board.get_figure_from_coords(destination_row, destination_column)
+
+        # save the original position for a piece
+        p_y, p_x = piece_to_move.get_position()
+
+        # simulate the situation after this move
+        self.game_board.set_figure_on_coords(p_y, p_x, None)
+        self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece)
+
+        # on simulated position, check if king is under attack
+        king_y, king_x = player.king.get_position()
+        legal = not player.king.check_if_under_attack(self.game_board, king_y, king_x)
+
+        # go back to original position
+        self.game_board.set_figure_on_coords(p_y, p_x, player_piece)
+        self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
+
+        return legal
 
 
     def validate_position_before_and_after_move(self, piece, player, destination_row, destination_column):
@@ -121,30 +170,6 @@ class GameManager:
             enemy.player_pieces.remove(occupant)
 
 
-    def search_for_check_after_move(self, player, piece_to_move, destination_row, destination_column):
-        # after a move, king could be checked
-
-        # get piece from player's list and DO NOT set 'moved' to true
-        player_piece = list(filter(lambda x: x == piece_to_move, player.player_pieces))[0]
-        # get current occupant of the destination field
-        occupant = self.game_board.get_figure_from_coords(destination_row, destination_column)
-
-        # save the original position for a piece
-        p_y, p_x = piece_to_move.get_position()
-
-        # simulate the situation after this move
-        self.game_board.set_figure_on_coords(p_y, p_x, None)
-        self.game_board.set_figure_on_coords(destination_row, destination_column, player_piece)
-
-        # on simulated position, check if king is under attack
-        king_y, king_x = player.king.get_position()
-        legal = not player.king.check_if_under_attack(self.game_board, king_y, king_x)
-
-        # go back to original position
-        self.game_board.set_figure_on_coords(p_y, p_x, player_piece)
-        self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
-
-        return legal
 
     def complete_promotion(self, player, piece, promotion):
         if piece is None:
@@ -161,7 +186,7 @@ class GameManager:
         new_piece.set_position(p_y, p_x)
 
         # save new piece
-        player.player_pieces.append(new_piece)
+        player.add_piece(new_piece)
         self.game_board.set_figure_on_coords(p_y, p_x, new_piece)
 
 
@@ -174,13 +199,16 @@ class GameManager:
 
         # king can tell if he/rook has moved or if there is something in between them or if he got checked
         if player.king.can_castle(castle_type, self.game_board):
+
+            # change the rook
             rook = self.game_board.get_figure_from_coords(king_y, king_x + pieces_position[0])
-
             rook.set_moved()
-            player.king.set_moved()
-
             rook.set_position(king_y, pieces_position[1])
+
+            # change the king
+            player.king.set_moved()
             player.king.set_position(king_y, pieces_position[2])
+
             self.game_board.set_figure_on_coords(king_y, pieces_position[1], rook)
             self.game_board.set_figure_on_coords(king_y, pieces_position[2], player.king)
             self.game_board.set_figure_on_coords(king_y, pieces_position[3], None)
@@ -188,7 +216,47 @@ class GameManager:
 
             self.white_turn = not self.white_turn
 
-        return rook
+        return rook # None if king cannot castle
+
+
+    def process_en_passant(self, player_pawn, destination_column, destination_row, enemy, player):
+        enemy_pawn, enemy_last_y, enemy_last_x, enemy_went_to_y, enemy_went_to_x = enemy.get_last_move()
+
+        # set enemy pawn as it was 1 field above/below from og move
+        enemy_pawn_og_y, enemy_pawn_og_x = enemy_pawn.get_position()
+        self.game_board.set_figure_on_coords(destination_row, destination_column, enemy_pawn)
+        self.game_board.set_figure_on_coords(enemy_went_to_y, enemy_went_to_x, None)
+
+        player_pawn_y, player_pawn_x = player_pawn.get_position()
+
+        p = self.validate_position_before_and_after_move(player_pawn, player, destination_row, destination_column)
+        legal = False if p is None else True
+
+        # it is legal - king is not under attack but could be after en passant
+        if legal:
+            # set up a position after taking en passant
+            self.game_board.set_figure_on_coords(player_pawn_y, player_pawn_x, None)
+            self.game_board.set_figure_on_coords(destination_row, destination_column, player_pawn)
+
+            # check this future position
+            king_y, king_x = player.king.get_position()
+            if player.king.check_if_under_attack(self.game_board, king_y, king_x):
+                # it is under attack after en passant
+                legal = False
+
+        # not legal (pawn move is not legal or king is still under attack or king is under attack after en passant)
+        if not legal:
+            # go back to original position
+            self.game_board.set_figure_on_coords(enemy_pawn_og_y, enemy_pawn_og_x, enemy_pawn)
+            self.game_board.set_figure_on_coords(player_pawn_y, player_pawn_x, player_pawn)
+            self.game_board.set_figure_on_coords(destination_row, destination_column, None)
+        else:
+            # move is okay, set it up
+            enemy.player_pieces.remove(enemy_pawn)
+            player_pawn.set_position(destination_row, destination_column)
+
+        # return value to set up a piece for output and switch player's turn
+        return legal
 
 
     def process_move(self, move):
@@ -206,96 +274,45 @@ class GameManager:
         else: # moves or takes
             piece = self.get_piece_from_notation(figure, column, row, destination)
             destination_column, destination_row = ord(destination[0]) % 97, 8 - int(destination[1])
+
             if piece is not None:
-                enemy_figure = self.game_board.get_figure_from_coords(destination_row, destination_column)
+                # just piece coords
                 p_y, p_x = piece.get_position()
+                # check if there is any figure at destination field
+                enemy_figure = self.game_board.get_figure_from_coords(destination_row, destination_column)
+                # do the move, if enemy_figure is none, it's just a move. If not - it's a 'take'
                 self.complete_move(player, enemy, piece, destination_row, destination_column, enemy_figure)
 
-
             else:
+                # no piece found, check if en passant
                 if figure == 'P':
+                    # en passant figure is a piece taken from the player's list
                     en_passant_figure = check_if_en_passant(figure, column, destination_column, destination_row, enemy, player)
+                    # it's just the logic if the move is actually en passant
                     if en_passant_figure is not None:
-                        #print("EN PASSANT")
-                        self.process_en_passant(en_passant_figure, destination_column, destination_row, enemy, player)
-                        piece = en_passant_figure
-                        self.white_turn = not self.white_turn
+                        # check if en passant is legal
+                        if self.process_en_passant(en_passant_figure, destination_column, destination_row, enemy, player):
+                            piece = en_passant_figure
+                            self.white_turn = not self.white_turn
+                        else:
+                            piece = None
+                            print("NOT EN PASSANT")
                     else:
                         print("NOT EN PASSANT")
 
+        # if promotion occurs (from notation translation - not position of pawn) complete this promotion
         if promotion != "":
             self.complete_promotion(player, piece, promotion)
+
+        # set both king's under_attack field
         self.tell_if_king_under_attack(player)
         self.tell_if_king_under_attack(enemy)
 
+        # piece can move legally, and it's position is set (originally p_y = -1)
         if piece is not None and p_y >= 0:
             player.set_last_move(piece, p_y, p_x, destination_row, destination_column)
-            #player.print_last_move()
 
+        if piece is None:
+            print("NONE")
+        # returns piece for test purposes (assert if None) - for gameplay it doesn't mean anything
         return piece
-
-
-    def check_if_move_removes_check(self, player, piece_moved, destination_row, destination_column):
-        player_piece_y, player_piece_x = piece_moved.get_position()
-        occupant = self.game_board.get_figure_from_coords(destination_row, destination_column)
-        king_y, king_x = player.king.get_position()
-
-        removed = False
-
-        self.game_board.set_figure_on_coords(destination_row, destination_column, piece_moved)
-        self.game_board.set_figure_on_coords(player_piece_y, player_piece_x, None)
-
-        if isinstance(piece_moved, King):
-            if not player.king.check_if_under_attack(self.game_board, destination_row, destination_column):
-                removed = True
-        else:
-            if not player.king.check_if_under_attack(self.game_board, king_y, king_x):
-                removed = True
-
-        self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
-        self.game_board.set_figure_on_coords(player_piece_y, player_piece_x, piece_moved)
-
-        return removed
-
-    def process_en_passant(self, player_pawn, destination_column, destination_row, enemy, player):
-        enemy_pawn, enemy_last_y, enemy_last_x, enemy_went_to_y, enemy_went_to_x = enemy.get_last_move()
-
-        # set pawn as it was 1 field above/below from og move
-        enemy_pawn_og_y, enemy_pawn_og_x = enemy_pawn.get_position()
-        self.game_board.set_figure_on_coords(destination_row, destination_column, enemy_pawn)
-        self.game_board.set_figure_on_coords(enemy_went_to_y, enemy_went_to_x, None)
-
-        player_pawn_y, player_pawn_x = player_pawn.get_position()
-
-        legal = False
-        removes_check = False
-
-
-        if player_pawn.check_if_move_legal(destination_row, destination_column, self.game_board):
-            legal = True
-            if player.king.get_under_attack():
-                # print("en passant under attack")
-                if self.check_if_move_removes_check(player, player_pawn, destination_row, destination_column):
-                    removes_check = True
-            else:
-                removes_check = True
-
-        if legal and removes_check:
-            # print("legal, checking for new check")
-            self.game_board.set_figure_on_coords(player_pawn_y, player_pawn_x, None)
-            self.game_board.set_figure_on_coords(destination_row, destination_column, player_pawn)
-
-            king_y, king_x = player.king.get_position()
-            if player.king.check_if_under_attack(self.game_board, king_y, king_x):
-                # print("king is now under attack")
-                legal = False
-
-        if not legal:
-            # print("illegal", legal, removes_check)
-            self.game_board.set_figure_on_coords(enemy_pawn_og_y, enemy_pawn_og_x, enemy_pawn)
-            self.game_board.set_figure_on_coords(player_pawn_y, player_pawn_x, player_pawn)
-            self.game_board.set_figure_on_coords(destination_row, destination_column, None)
-        else:
-            # print("no check found")
-            enemy.player_pieces.remove(enemy_pawn)
-            player_pawn.set_position(destination_row, destination_column)

@@ -1,6 +1,4 @@
 import re
-
-from Pieces.Pawn import Pawn
 from Pieces.Pieces_enum import *
 
 
@@ -37,7 +35,6 @@ def translate_chess_notation(notation):
             action = "moves"
 
         # it was a pawn
-        #TODO en passant
         if len(figure) == 0: # just a pawn move
             figure = "P"
         elif len(figure) == 1 and figure.islower(): # pawn is a number of column (char)
@@ -64,6 +61,7 @@ def translate_chess_notation(notation):
     return figure, column, row, action, destination, promotion, is_check, is_checkmate
 
 
+# for testing
 def print_move_description(figure, column, row, action, destination, promotion, is_check, is_checkmate):
     description = ""
     pieces = {"K": "King", "Q": "Queen", "R": "Rook", "B": "Bishop", "N": 'Knight'}

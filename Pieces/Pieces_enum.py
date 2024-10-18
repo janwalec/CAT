@@ -6,7 +6,7 @@ from Pieces.Knight import Knight
 from Pieces.Queen import Queen
 from Pieces.King import King
 
-
+# to get classes from letters (isinstance)
 class PE(Enum):
     P = Pawn
     R = Rook

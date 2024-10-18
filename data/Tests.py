@@ -140,7 +140,8 @@ def test_set_of_games(path):
         gm = GameManager("data/starting_position.txt")
         for i in game[1]:
             error_message = gm.process_move(i)
-            if not '#' in i and error_message is None:
+
+            if error_message is None:
                 print("ERROR")
                 print("done ", it, "/", len(arr))
                 print(game[1])

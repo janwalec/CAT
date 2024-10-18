@@ -1,6 +1,8 @@
 from enum import Enum
 import pygame
 
+from Board.board_console_display import print_pieces
+
 
 class DisplayFigure(Enum):
     P = '♟'
@@ -40,22 +42,23 @@ class DisplayManager:
                     running = False
                 if game == None:
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_RETURN:  # Naciśnięcie Enter
+                        if event.key == pygame.K_RETURN:
                             print(f"Entered: {input_text}")
                             self.game_manager.process_move(input_text)
-                            input_text = ""  # Resetuj tekst po wprowadzeniu
-                        elif event.key == pygame.K_BACKSPACE:  # Naciśnięcie Backspace
-                            input_text = input_text[:-1]  # Usuń ostatni znak
+                            input_text = ""
+                            #print_pieces(self.game_manager.game_board.board)
+                        elif event.key == pygame.K_BACKSPACE:
+                            input_text = input_text[:-1]
                         else:
-                            input_text += event.unicode  # Dodaj wprowadzony znak
+                            input_text += event.unicode
                 else:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN:
                             self.game_manager.process_move(game[i])
-                            input_text += str(game[i]) + " "  # Dodaj wprowadzony znak
+                            input_text += str(game[i]) + " "
                             i += 1
                         else:
-                            input_text = ""  # Resetuj tekst po wprowadzeniu
+                            input_text = ""
 
 
 

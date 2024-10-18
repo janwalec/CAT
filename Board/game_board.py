@@ -5,7 +5,7 @@ from Pieces.Bishop import Bishop
 from Pieces.Knight import Knight
 from Pieces.Queen import Queen
 from Pieces.King import King
-from Pieces.Field import Field
+from Board.Field import Field
 
 class GameBoard:
     def __init__(self, path):
