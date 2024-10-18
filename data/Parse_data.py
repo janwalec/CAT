@@ -50,4 +50,4 @@ def parse_file(file_name):
     save_file(file_name, games)
 
 
-parse_file("lichess_db_standard_rated_2014-02")
+parse_file("lichess_db_standard_rated_2013-01")

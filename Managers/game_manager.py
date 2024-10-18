@@ -43,9 +43,11 @@ class GameManager:
 
         if isinstance(piece_moved, King):
             if not player.king.check_if_under_attack(self.game_board, destination_row, destination_column):
+                player.king.set_under_attack(False)
                 removed = True
         else:
             if not player.king.check_if_under_attack(self.game_board, king_y, king_x):
+                player.king.set_under_attack(False)
                 removed = True
 
         self.game_board.set_figure_on_coords(destination_row, destination_column, occupant)
@@ -305,7 +307,7 @@ class GameManager:
             self.complete_promotion(player, piece, promotion)
 
         # set both king's under_attack field
-        self.tell_if_king_under_attack(player)
+        #self.tell_if_king_under_attack(player)
         self.tell_if_king_under_attack(enemy)
 
         # piece can move legally, and it's position is set (originally p_y = -1)

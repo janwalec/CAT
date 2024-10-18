@@ -1,7 +1,13 @@
+import cProfile
 import csv
+import multiprocessing
 import os
+import pstats
 from pathlib import Path
 import time
+
+import numpy as np
+
 from Managers.game_manager import *
 from Managers.notation_translator import print_move_description
 from Managers.game_manager import GameManager
@@ -116,7 +122,7 @@ def test_automatically():
 
 def test_set_of_games(path):
     check_if_exists = Path(path)
-    arr = []
+    a = []
 
     if check_if_exists.is_file():
         print("file exists")
@@ -125,18 +131,60 @@ def test_set_of_games(path):
             for row in reader:
                 result = row[0]
                 moves = row[1].split()
-                arr.append([result, moves])
+                a.append([result, moves])
 
     else:
         print("file doesnt exist")
-        return
 
+    return a
+
+
+def process_move(gm, move):
+    error_message = gm.process_move(move)
+    assert error_message is not None, f"Test failed: piece should not be None for game {move}"
+    return error_message  # Zwróć error_message, zamiast ponownie wywoływać gm.process_move
+
+
+def process_game_moves(game):
+    gm = GameManager("data/starting_position.txt")
+    return [process_move(gm, move) for move in game[1]]
+
+
+def thread_test():
+    if __name__ == "__main__":
+
+        arr = test_set_of_games("data/games/arr_lichess_db_standard_rated_2013-01.csv")
+
+        test_len = 30000
+        arr = arr[:test_len]
+
+        time_start = time.time()
+
+        with multiprocessing.Pool() as pool:
+            results = pool.map(process_game_moves, arr)
+
+        total_time = time.time() - time_start
+        print("number of games:", test_len)
+        print("total seconds:", round(total_time, 3))
+        print("games per second:", round(test_len / total_time, 3))
+
+        for i in results:
+            for j in i:
+                if j is None:
+                    print("some none")
+
+
+        # 2481.127 / 16.893
+
+def just_test():
+    arr = test_set_of_games("data/games/arr_lichess_db_standard_rated_2013-01.csv")
+    test_len = 5000
+    arr = arr[:test_len]
 
     it = 0
     time_start = time.time()
     total_time = time.time()
     for game in arr:
-
         gm = GameManager("data/starting_position.txt")
         for i in game[1]:
             error_message = gm.process_move(i)
@@ -149,20 +197,26 @@ def test_set_of_games(path):
 
         if it % 1000 == 0:
             elapsed_time = time.time() - time_start
-            print("done ", it, "/", len(arr), " (", round(100 * it/len(arr), 3), "%)", "took ", round(elapsed_time, 2), "seconds")
+            print("done ", it, "/", len(arr), " (", round(100 * it / len(arr), 3), "%)", "took ",
+                  round(elapsed_time, 2), "seconds")
             time_start = time.time()
             print("total time:", round(time.time() - total_time, 2), "\n")
 
         it += 1
 
 
-        gm = None
+
+cProfile.run("just_test()", "my_func_stats")
+
+p = pstats.Stats("my_func_stats")
+p.sort_stats("cumulative").print_stats()
+
+#thread_test()
 
 
-test_set_of_games("data/games/arr_lichess_db_standard_rated_2013-01.csv")
 
 
 
+'''
 
-
-
+'''

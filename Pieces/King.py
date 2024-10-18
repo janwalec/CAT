@@ -70,6 +70,7 @@ class King(Piece):
             (-1, 2), (1, 2),  # x-1, y+2 and x+1, y+2
             (-2, 1), (-2, -1)  # x-2, y+1 and x-2, y-1
         ]
+
         for dx, dy in knight_move:
                 knight_x = go_to_x + dx
                 knight_y = go_to_y + dy
